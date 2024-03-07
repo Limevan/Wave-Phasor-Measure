@@ -206,6 +206,7 @@ void main (void)
 	float v[4];
 	float period;
 	float phase_difference;
+	int negative; // 0 if the phase difference is positive, 1 if the phase difference is negative	
 
 	TIMER0_Init();
 
@@ -234,7 +235,10 @@ void main (void)
 		TF0=0;
 		overflow_count=0;
 		
-		while(P1_4!=0); // Wait for the signal to be zero
+		while(P1_4!=0 && P1_5!=0); // Wait for the signal to be zero
+
+		if(P1_4!=1){
+		negative=0;
 		while(P1_4!=1); // Wait for the signal to be one
 		TR0=1; // Start the timer
 		while(P1_5!=1) // Wait for the signal to be one
@@ -248,7 +252,26 @@ void main (void)
 		TR0=0; // Stop timer 0, the 24-bit number [overflow_count-TH0-TL0] has the period!
 		phase_difference=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
 		// Send the period to the serial port
+		}
 
+		if(P1_5!=1){
+		negative=1;
+		while(P1_5!=1); // Wait for the signal to be one
+		TR0=1; // Start the timer
+		while(P1_4!=1) // Wait for the signal to be one
+		{
+			if(TF0==1) // Did the 16-bit timer overflow?
+			{
+				TF0=0;
+				overflow_count++;
+			}
+		}
+		TR0=0; // Stop timer 0, the 24-bit number [overflow_count-TH0-TL0] has the period!
+		phase_difference=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
+		// Send the period to the serial port
+		}
+
+		
 		// Reset the counter
 		TL0=0; 
 		TH0=0;
@@ -278,8 +301,14 @@ void main (void)
 		period=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
 		// Send the period to the serial port
 		//printf( "\rT=%f ms    ", period*1000.0);
-
 		phase_difference=(phase_difference/period)*360.0;
+		
+		if(negative==0){
+		}
+		else{
+			phase_difference += 0.1;
+			phase_difference = -1*phase_difference;
+		}
 		printf( "\rPhase=%3.0f degrees    ", phase_difference);
 		printf ("V@P2.2=%7.2fV, V@P2.3=%7.2fV", v[0]+0.53, v[1]+0.53);
 	 }  
