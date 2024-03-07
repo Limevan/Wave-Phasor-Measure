@@ -194,10 +194,20 @@ float Volts_at_Pin(unsigned char pin)
 	 return ((ADC_at_Pin(pin)*VDD)/0b_0011_1111_1111_1111);
 }
 
+void TIMER0_Init(void)
+{
+	TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
+	TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
+	TR0=0; // Stop Timer/Counter 0
+}
+
 void main (void)
 {
 	float v[4];
 	float period;
+	float phase_difference;
+
+	TIMER0_Init();
 
     waitms(500); // Give PuTTy a chance to start before sending
 	printf("\x1b[2J"); // Clear screen using ANSI escape sequence.
@@ -216,10 +226,62 @@ void main (void)
 	    // Read 14-bit value from the pins configured as analog inputs
 		v[0] = Volts_at_Pin(QFP32_MUX_P2_2);
 		v[1] = Volts_at_Pin(QFP32_MUX_P2_3);
-		v[2] = Volts_at_Pin(QFP32_MUX_P2_4);
-		v[3] = Volts_at_Pin(QFP32_MUX_P2_5);
-		printf ("V@P2.2=%7.5fV, V@P2.3=%7.5fV, V@P2.4=%7.5fV, V@P2.5=%7.5fV\r", v[0], v[1], v[2], v[3]);
+		//printf ("V@P2.2=%7.5fV, V@P2.3=%7.5fV", v[0], v[1]);
 		waitms(500);
+
+		// Reset the counter
+		TL0=0; 
+		TH0=0;
+		TF0=0;
+		overflow_count=0;
+		
+		while(P1_4!=0); // Wait for the signal to be zero
+		while(P1_4!=1); // Wait for the signal to be one
+		TR0=1; // Start the timer
+		while(P1_5!=1) // Wait for the signal to be one
+		{
+			if(TF0==1) // Did the 16-bit timer overflow?
+			{
+				TF0=0;
+				overflow_count++;
+			}
+		}
+		TR0=0; // Stop timer 0, the 24-bit number [overflow_count-TH0-TL0] has the period!
+		phase_difference=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
+		// Send the period to the serial port
+
+		// Reset the counter
+		TL0=0; 
+		TH0=0;
+		TF0=0;
+		overflow_count=0;
+		
+		while(P1_4!=0); // Wait for the signal to be zero
+		while(P1_4!=1); // Wait for the signal to be one
+		TR0=1; // Start the timer
+		while(P1_4!=0) // Wait for the signal to be zero
+		{
+			if(TF0==1) // Did the 16-bit timer overflow?
+			{
+				TF0=0;
+				overflow_count++;
+			}
+		}
+		while(P1_4!=1) // Wait for the signal to be one
+		{
+			if(TF0==1) // Did the 16-bit timer overflow?
+			{
+				TF0=0;
+				overflow_count++;
+			}
+		}
+		TR0=0; // Stop timer 0, the 24-bit number [overflow_count-TH0-TL0] has the period!
+		period=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
+		// Send the period to the serial port
+		//printf( "\rT=%f ms    ", period*1000.0);
+
+		phase_difference=(phase_difference/period)*360.0;
+		printf( "\rPhase=%f degrees    ", phase_difference);
 	 }  
 }	
 

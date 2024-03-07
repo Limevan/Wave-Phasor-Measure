@@ -6,3 +6,15 @@ __C51.bat
 EFM8_ADC.lst
 EFM8_ADC.obj
 EFM8_ADC.map
+PhaseDifference.obj
+PeriodEFM8.hex
+PeriodEFM8.lkr
+PeriodEFM8.lst
+PeriodEFM8.map
+PeriodEFM8.obj
+PhaseDifference.asm
+PhaseDifference.hex
+PhaseDifference.lkr
+PhaseDifference.lst
+PhaseDifference.map
+PeriodEFM8.asm

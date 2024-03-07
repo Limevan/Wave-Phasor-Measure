@@ -123,7 +123,7 @@ void TIMER0_Init(void)
 
 void main (void) 
 {
-	float period;
+	float phase_difference;
 	
 	TIMER0_Init();
 
@@ -146,15 +146,7 @@ void main (void)
 		while(P1_4!=0); // Wait for the signal to be zero
 		while(P1_4!=1); // Wait for the signal to be one
 		TR0=1; // Start the timer
-		while(P1_4!=0) // Wait for the signal to be zero
-		{
-			if(TF0==1) // Did the 16-bit timer overflow?
-			{
-				TF0=0;
-				overflow_count++;
-			}
-		}
-		while(P1_4!=1) // Wait for the signal to be one
+		while(P1_5!=1) // Wait for the signal to be one
 		{
 			if(TF0==1) // Did the 16-bit timer overflow?
 			{
@@ -163,9 +155,9 @@ void main (void)
 			}
 		}
 		TR0=0; // Stop timer 0, the 24-bit number [overflow_count-TH0-TL0] has the period!
-		period=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
+		phase_difference=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
 		// Send the period to the serial port
-		printf( "\rT=%f ms    ", period*1000.0);
+		printf( "\rT=%f ms    ", phase_difference*1000.0);
     }
 	
 }
