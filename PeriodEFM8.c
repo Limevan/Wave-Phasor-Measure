@@ -165,7 +165,7 @@ void main (void)
 		TR0=0; // Stop timer 0, the 24-bit number [overflow_count-TH0-TL0] has the period!
 		period=(overflow_count*65536.0+TH0*256.0+TL0)*(12.0/SYSCLK);
 		// Send the period to the serial port
-		printf( "\rT=%f ms    ", period*1000.0);
+		printf( "\rT=%f ms    \n", period*1000.0);
     }
 	
 }
