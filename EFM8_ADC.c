@@ -350,9 +350,10 @@ void main (void)
 		TF0=0;
 		overflow_count=0;
 		
-		while(P1_4!=0); // Wait for the signal to be zero
+		while(P1_4!=0 && P1_5 != 0); // Wait for the signal to be zero
 		while(P1_4!=1); // Wait for the signal to be one
 		TR0=1; // Start the timer
+		while (P1_5 != 0);
 		while(P1_5!=1) // Wait for the signal to be one
 		{
 			if(TF0==1) // Did the 16-bit timer overflow?
@@ -396,13 +397,16 @@ void main (void)
 		//printf( "\rT=%f ms    ", period*1000.0);
 		phase_difference=(phase_difference/period)*360.0;
 		phase_difference += 0.2;
+		if(phase_difference >= 180.5){
+			phase_difference -= 360.2;
+		}
 
 		sprintf(str, "Test: %1.2f<%3.0f", (v[0]+0.53)/1.4142, phase_difference);
 		LCDprint(p, 1, 1);
 		sprintf(str2, "Ref:  %1.2f<0", (v[1]+0.53)/1.4142);
 		LCDprint(p2, 2, 1);
 
-		printf( "\rPhase=%3.0f degrees    ", phase_difference);
+		printf( "\rPhase=%3.3f degrees    ", phase_difference);
 		printf ("V@P2.2=%7.2fV, V@P2.3=%7.2fV", v[0]+0.53, v[1]+0.53);
 	 }  
 }	
