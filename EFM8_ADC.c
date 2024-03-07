@@ -14,6 +14,8 @@
 #define BAUDRATE 115200L
 #define SARCLK 18000000L
 
+unsigned char overflow_count;
+
 char _c51_external_startup (void)
 {
 	// Disable Watchdog with key sequence
@@ -195,6 +197,7 @@ float Volts_at_Pin(unsigned char pin)
 void main (void)
 {
 	float v[4];
+	float period;
 
     waitms(500); // Give PuTTy a chance to start before sending
 	printf("\x1b[2J"); // Clear screen using ANSI escape sequence.
@@ -206,8 +209,6 @@ void main (void)
 	
 	InitPinADC(2, 2); // Configure P2.2 as analog input
 	InitPinADC(2, 3); // Configure P2.3 as analog input
-	InitPinADC(2, 4); // Configure P2.4 as analog input
-	InitPinADC(2, 5); // Configure P2.5 as analog input
     InitADC();
 
 	while(1)
