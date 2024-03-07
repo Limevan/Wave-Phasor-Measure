@@ -226,7 +226,6 @@ void main (void)
 	    // Read 14-bit value from the pins configured as analog inputs
 		v[0] = Volts_at_Pin(QFP32_MUX_P2_2);
 		v[1] = Volts_at_Pin(QFP32_MUX_P2_3);
-		//printf ("V@P2.2=%7.5fV, V@P2.3=%7.5fV", v[0], v[1]);
 		waitms(500);
 
 		// Reset the counter
@@ -281,7 +280,8 @@ void main (void)
 		//printf( "\rT=%f ms    ", period*1000.0);
 
 		phase_difference=(phase_difference/period)*360.0;
-		printf( "\rPhase=%f degrees    ", phase_difference);
+		printf( "\rPhase=%3.0f degrees    ", phase_difference);
+		printf ("V@P2.2=%7.2fV, V@P2.3=%7.2fV", v[0]+0.53, v[1]+0.53);
 	 }  
 }	
 
