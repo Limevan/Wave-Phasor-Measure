@@ -4,6 +4,8 @@
 // (c) 2008-2023, Jesus Calvino-Fraga
 //
 
+//Modified by: Evan Lim & Nathan Wong
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <EFM8LB1.h>
